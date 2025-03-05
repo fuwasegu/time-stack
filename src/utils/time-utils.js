@@ -1,35 +1,49 @@
 /**
  * 時間をフォーマットする関数
- * @param {number} totalMinutes - 合計分数
- * @returns {string} HH:MM 形式の文字列
+ * @param {number} totalSeconds - 合計秒数
+ * @returns {string} HH:MM:SS 形式の文字列
  */
-function formatTime(totalMinutes) {
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+function formatTime(totalSeconds) {
+  // 小数点以下を切り捨てて整数に変換
+  totalSeconds = Math.floor(totalSeconds);
+  
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
 /**
- * HH:MM 形式の文字列から分数に変換する関数
- * @param {string} timeString - HH:MM 形式の文字列
- * @returns {number} 合計分数
+ * HH:MM:SS 形式の文字列から秒数に変換する関数
+ * @param {string} timeString - HH:MM:SS 形式の文字列
+ * @returns {number} 合計秒数
  */
 function parseTime(timeString) {
-  const [hours, minutes] = timeString.split(':').map(Number);
-  return (hours * 60) + minutes;
+  const parts = timeString.split(':').map(Number);
+  if (parts.length === 3) {
+    // HH:MM:SS形式
+    const [hours, minutes, seconds] = parts;
+    return (hours * 3600) + (minutes * 60) + seconds;
+  } else if (parts.length === 2) {
+    // HH:MM形式（後方互換性のため）
+    const [hours, minutes] = parts;
+    return (hours * 3600) + (minutes * 60);
+  }
+  return 0;
 }
 
 /**
  * 合計時間を計算する関数
  * @param {Array} timers - タイマーの配列
- * @returns {string} HH:MM 形式の合計時間
+ * @returns {string} HH:MM:SS 形式の合計時間
  */
 function calculateTotalTime(timers) {
-  const totalMinutes = timers.reduce((total, timer) => {
-    return total + timer.minutes;
+  const totalSeconds = timers.reduce((total, timer) => {
+    return total + (timer.seconds || 0);
   }, 0);
   
-  return formatTime(totalMinutes);
+  return formatTime(totalSeconds);
 }
 
 /**

@@ -15,6 +15,7 @@ const notificationIntervalInput = document.getElementById('notification-interval
 const timerTimeContainer = document.getElementById('timer-time-container');
 const timerHoursInput = document.getElementById('timer-hours');
 const timerMinutesInput = document.getElementById('timer-minutes');
+const timerSecondsInput = document.getElementById('timer-seconds');
 const saveTimerBtn = document.getElementById('save-timer-btn');
 const cancelTimerBtn = document.getElementById('cancel-timer-btn');
 const confirmDialog = document.getElementById('confirm-dialog');
@@ -181,7 +182,7 @@ function resetTimer(timerId) {
     }
     
     // 時間をリセット
-    timers[timerIndex].minutes = 0;
+    timers[timerIndex].seconds = 0;
     
     // タイマーカードを更新
     const timerCard = document.querySelector(`.timer-card[data-id="${timerId}"]`);
@@ -206,16 +207,21 @@ function startTimerInterval() {
   
   console.log('タイマーインターバルを開始します');
   
-  // デバッグ用に短い間隔（1秒）でタイマーを更新
-  // 本番環境では60000（1分）に戻す
-  const intervalTime = isDev ? 1000 : 60000;
+  // 1秒ごとにタイマーを更新
+  const intervalTime = 1000;
   
   timerInterval = setInterval(() => {
     if (activeTimer) {
-      console.log(`タイマー更新: ${activeTimer.title}, 現在: ${activeTimer.minutes}分`);
+      console.log(`タイマー更新: ${activeTimer.title}, 現在: ${activeTimer.seconds || 0}秒`);
       
-      // 時間を増やす（デバッグモードでは1秒ごとに1分増加、本番では1分ごとに1分増加）
-      activeTimer.minutes += 1;
+      // 時間を1秒増やす
+      if (!activeTimer.seconds) {
+        activeTimer.seconds = 0;
+      }
+      activeTimer.seconds += 1;
+      
+      // 後方互換性のために分も更新（必要な場合）
+      activeTimer.minutes = Math.floor(activeTimer.seconds / 60);
       
       // タイマーカードを更新
       const timerCard = document.querySelector(`.timer-card[data-id="${activeTimer.id}"]`);
@@ -226,10 +232,12 @@ function startTimerInterval() {
       // 合計時間を更新
       updateTotalTime();
       
-      // タイマーデータを保存
-      saveTimers();
+      // タイマーデータを保存（パフォーマンスのために10秒ごとに保存）
+      if (activeTimer.seconds % 10 === 0) {
+        saveTimers();
+      }
     }
-  }, intervalTime); // デバッグ用に1秒、本番用に1分
+  }, intervalTime);
 }
 
 // 通知インターバルを開始する関数
@@ -313,10 +321,16 @@ function showTimeEditModal(timer) {
   
   // 時間入力を表示
   timerTimeContainer.style.display = 'block';
-  const hours = Math.floor(timer.minutes / 60);
-  const minutes = timer.minutes % 60;
+  
+  // 秒単位の時間を時:分:秒に変換
+  const totalSeconds = timer.seconds !== undefined ? timer.seconds : (timer.minutes * 60);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
   timerHoursInput.value = hours;
   timerMinutesInput.value = minutes;
+  timerSecondsInput.value = seconds;
   
   editingTimerId = timer.id;
   
@@ -383,11 +397,12 @@ function createOrUpdateTimer() {
   const notificationInterval = parseInt(notificationIntervalInput.value) || 30;
   
   // 時間編集モードの場合
-  let minutes = 0;
+  let seconds = 0;
   if (timerTimeContainer.style.display !== 'none') {
     const hours = parseInt(timerHoursInput.value) || 0;
     const mins = parseInt(timerMinutesInput.value) || 0;
-    minutes = (hours * 60) + mins;
+    const secs = parseInt(timerSecondsInput.value) || 0;
+    seconds = (hours * 3600) + (mins * 60) + secs;
   }
   
   if (editingTimerId) {
@@ -396,7 +411,9 @@ function createOrUpdateTimer() {
     if (timerIndex !== -1) {
       // 時間編集モードの場合は時間を更新
       if (timerTimeContainer.style.display !== 'none') {
-        timers[timerIndex].minutes = minutes;
+        timers[timerIndex].seconds = seconds;
+        // 後方互換性のために分も更新
+        timers[timerIndex].minutes = Math.floor(seconds / 60);
       }
       
       timers[timerIndex].title = title;
@@ -412,21 +429,40 @@ function createOrUpdateTimer() {
       } else if (!timers[timerIndex].notificationEnabled) {
         clearNotificationInterval(editingTimerId);
       }
+      
+      // タイマーカードを更新
+      const timerCard = document.querySelector(`.timer-card[data-id="${editingTimerId}"]`);
+      if (timerCard) {
+        updateTimerCard(timerCard, timers[timerIndex]);
+      }
     }
   } else {
     // 新しいタイマーを作成
     const newTimer = {
-      id: Date.now().toString(),
-      title,
-      icon,
-      notes,
-      minutes: 0,
+      id: generateUUID(),
+      title: title,
+      icon: icon,
+      notes: notes,
+      seconds: seconds,
+      minutes: Math.floor(seconds / 60), // 後方互換性のため
       active: false,
-      notificationEnabled,
-      notificationInterval
+      notificationEnabled: notificationEnabled,
+      notificationInterval: notificationInterval,
+      createdAt: getCurrentDateTime()
     };
     
     timers.push(newTimer);
+    
+    // タイマーカードを作成
+    const timerCard = createTimerCard(
+      newTimer,
+      startTimer,
+      stopTimer,
+      resetTimer,
+      showContextMenu
+    );
+    
+    timersContainer.appendChild(timerCard);
   }
   
   // タイマーを保存して表示を更新

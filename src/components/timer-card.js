@@ -56,7 +56,9 @@ function createTimerCard(timer, onStart, onStop, onReset, onContextMenu) {
   // タイマー時間
   const time = document.createElement('div');
   time.className = 'timer-time';
-  time.textContent = formatTime(timer.minutes);
+  // 秒単位で時間を表示（後方互換性のため）
+  const seconds = timer.seconds !== undefined ? timer.seconds : (timer.minutes * 60);
+  time.textContent = formatTime(seconds);
   
   // タイマーコントロール
   const controls = document.createElement('div');
@@ -140,7 +142,9 @@ function updateTimerCard(cardElement, timer) {
   // 時間表示を更新
   const timeElement = cardElement.querySelector('.timer-time');
   if (timeElement) {
-    timeElement.textContent = formatTime(timer.minutes);
+    // 秒単位で時間を表示（後方互換性のため）
+    const seconds = timer.seconds !== undefined ? timer.seconds : (timer.minutes * 60);
+    timeElement.textContent = formatTime(seconds);
   }
   
   // コントロールボタンを更新
