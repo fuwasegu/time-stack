@@ -5,6 +5,13 @@ on:
     tags:
       - 'v*'
 
+# リポジトリへの書き込み権限を明示的に設定
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
 jobs:
   release:
     runs-on: macos-latest
@@ -24,5 +31,5 @@ jobs:
       
       - name: Build and publish
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish 
