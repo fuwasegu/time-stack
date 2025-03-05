@@ -89,23 +89,32 @@
               
               <div class="time-adjustment">
                 <h3>時間の調整</h3>
+                <p class="adjustment-description">現在の時間に対して加算・減算を行います</p>
+                
                 <div class="adjustment-inputs">
                   <div class="adjustment-field">
                     <input type="number" id="adjustment-minutes" name="adjustment-minutes" min="-999" max="999" value="0">
                     <label for="adjustment-minutes">分</label>
                   </div>
-                  <button type="button" id="apply-adjustment-btn" class="btn btn-secondary">適用</button>
+                  <button type="button" id="apply-adjustment-btn" class="btn btn-primary">適用</button>
                 </div>
                 
-                <div class="adjustment-shortcuts">
-                  <button type="button" class="shortcut-btn" data-minutes="-60">-1時間</button>
-                  <button type="button" class="shortcut-btn" data-minutes="-45">-45分</button>
-                  <button type="button" class="shortcut-btn" data-minutes="-30">-30分</button>
-                  <button type="button" class="shortcut-btn" data-minutes="-15">-15分</button>
-                  <button type="button" class="shortcut-btn" data-minutes="15">+15分</button>
-                  <button type="button" class="shortcut-btn" data-minutes="30">+30分</button>
-                  <button type="button" class="shortcut-btn" data-minutes="45">+45分</button>
-                  <button type="button" class="shortcut-btn" data-minutes="60">+1時間</button>
+                <div class="adjustment-shortcuts-container">
+                  <div class="shortcuts-label">ショートカット</div>
+                  <div class="adjustment-shortcuts">
+                    <div class="shortcuts-group negative">
+                      <button type="button" class="shortcut-btn negative" data-minutes="-60">-1時間</button>
+                      <button type="button" class="shortcut-btn negative" data-minutes="-45">-45分</button>
+                      <button type="button" class="shortcut-btn negative" data-minutes="-30">-30分</button>
+                      <button type="button" class="shortcut-btn negative" data-minutes="-15">-15分</button>
+                    </div>
+                    <div class="shortcuts-group positive">
+                      <button type="button" class="shortcut-btn positive" data-minutes="15">+15分</button>
+                      <button type="button" class="shortcut-btn positive" data-minutes="30">+30分</button>
+                      <button type="button" class="shortcut-btn positive" data-minutes="45">+45分</button>
+                      <button type="button" class="shortcut-btn positive" data-minutes="60">+1時間</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

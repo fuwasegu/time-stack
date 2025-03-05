@@ -439,18 +439,144 @@ body {
   width: 80px;
 }
 
-/* 時間入力 */
+/* 時間編集モーダル用のスタイル */
+#timer-time-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+#timer-time-container label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 .time-inputs {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
   margin-bottom: 20px;
+  font-size: 1.5rem;
 }
 
 .time-inputs input {
-  width: 60px;
+  width: 80px;
+  padding: 12px;
+  font-size: 1.5rem;
   text-align: center;
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-color);
+}
+
+/* 時間調整セクション */
+.time-adjustment {
+  margin-top: 30px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.time-adjustment h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.adjustment-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.adjustment-inputs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.adjustment-field {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.adjustment-field input {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.adjustment-field label {
+  margin-bottom: 0;
+  font-size: 1rem;
+}
+
+.adjustment-shortcuts-container {
+  margin-top: 20px;
+}
+
+.shortcuts-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.adjustment-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.shortcuts-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.shortcut-btn {
+  background-color: var(--card-background);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 70px;
+}
+
+.shortcut-btn.negative {
+  background-color: var(--card-background);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+.shortcut-btn.positive {
+  background-color: var(--card-background);
+  border-color: var(--active-timer-color);
+  color: var(--active-timer-color);
+}
+
+.shortcut-btn.negative:hover {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.shortcut-btn.positive:hover {
+  background-color: var(--active-timer-color);
+  color: white;
 }
 
 /* コンテキストメニュー */
@@ -546,84 +672,4 @@ body {
 
 #confirm-dialog .modal-content {
   max-width: 400px;
-}
-
-/* 時間編集モーダル用のスタイル */
-#timer-time-container {
-  margin: 20px auto;
-  text-align: center;
-}
-
-#timer-time-container label {
-  display: block;
-  margin-bottom: 15px;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-/* 時間調整セクション */
-.time-adjustment {
-  margin-top: 30px;
-  border-top: 1px solid var(--border-color);
-  padding-top: 20px;
-}
-
-.time-adjustment h3 {
-  font-size: 1.1rem;
-  margin-bottom: 15px;
-  color: var(--text-color);
-}
-
-.adjustment-inputs {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.adjustment-field {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.adjustment-field input {
-  width: 80px;
-  padding: 8px;
-  border: 1px solid var(--border-color);
-  background-color: var(--background-color);
-  color: var(--text-color);
-  border-radius: 4px;
-  text-align: center;
-}
-
-.adjustment-field label {
-  margin-bottom: 0;
-  font-size: 1rem;
-}
-
-.adjustment-shortcuts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.shortcut-btn {
-  background-color: var(--card-background);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.shortcut-btn:hover {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
 } 
