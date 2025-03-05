@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Stack</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/emoji-picker.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- ヘッダー部分 -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="app-title">Time Stack</h1>
+      </div>
+      <div class="header-center">
+        <div class="total-time" id="total-time">00:00</div>
+      </div>
+      <div class="header-right">
+        <button id="add-timer-btn" class="btn btn-primary">
+          <span class="icon">+</span>
+          <span>新規タイマー</span>
+        </button>
+        <button id="clear-all-btn" class="btn btn-danger">
+          <span class="icon">🗑️</span>
+          <span>全てクリア</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="app-content">
+      <div id="timers-container" class="timers-container">
+        <!-- タイマーカードはJSで動的に生成 -->
+      </div>
+    </main>
+
+    <!-- 新規タイマー作成モーダル -->
+    <div id="timer-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title">新規タイマー</h2>
+          <button id="close-modal-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="timer-form">
+            <div class="form-group">
+              <label for="timer-title">タイトル</label>
+              <input type="text" id="timer-title" required>
+            </div>
+            <div class="form-group">
+              <label for="timer-notes">備考（オプション）</label>
+              <textarea id="timer-notes"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="timer-icon">アイコン</label>
+              <div class="emoji-selector">
+                <button type="button" id="emoji-picker-btn" class="emoji-btn">
+                  <span id="selected-emoji">⏱️</span>
+                </button>
+                <div id="emoji-picker" class="emoji-picker hidden">
+                  <div class="emoji-list">
+                    <!-- 絵文字はJSで動的に生成 -->
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="timer-notification">通知設定</label>
+              <div class="notification-settings">
+                <input type="checkbox" id="enable-notification">
+                <label for="enable-notification">通知を有効にする</label>
+                <div id="notification-interval-container" class="hidden">
+                  <label for="notification-interval">通知間隔（分）</label>
+                  <input type="number" id="notification-interval" min="1" value="30">
+                </div>
+              </div>
+            </div>
+            <div class="form-group" id="timer-time-container" style="display: none;">
+              <label for="timer-hours">時間</label>
+              <div class="time-inputs">
+                <input type="number" id="timer-hours" min="0" max="99" value="0">
+                <span>:</span>
+                <input type="number" id="timer-minutes" min="0" max="59" value="0">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="save-timer-btn" class="btn btn-primary">保存</button>
+              <button type="button" id="cancel-timer-btn" class="btn btn-secondary">キャンセル</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 確認ダイアログ -->
+    <div id="confirm-dialog" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>確認</h2>
+          <button id="close-confirm-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirm-message"></p>
+          <div class="form-actions">
+            <button id="confirm-yes-btn" class="btn btn-danger">はい</button>
+            <button id="confirm-no-btn" class="btn btn-secondary">いいえ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- コンテキストメニュー -->
+    <div id="context-menu" class="context-menu">
+      <ul>
+        <li id="edit-timer">編集</li>
+        <li id="edit-time">時間の編集</li>
+        <li id="delete-timer" class="danger">削除</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- スクリプト -->
+  <script src="components/emoji-picker.js"></script>
+  <script src="components/timer-card.js"></script>
+  <script src="utils/time-utils.js"></script>
+  <script src="utils/drag-drop.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html> 
