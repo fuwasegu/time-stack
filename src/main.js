@@ -1,8 +1,15 @@
-const { app, BrowserWindow, ipcMain, Menu, Tray, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, Tray, Notification, dialog } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { autoUpdater } = require('electron-updater');
+
+// 自動更新の設定
+autoUpdater.logger = require('electron-log');
+autoUpdater.logger.transports.file.level = 'info';
+// 自動インストールを無効化（ユーザーに確認を求めるため）
+autoUpdater.autoInstallOnAppQuit = false;
 
 // macOSのネイティブ通知を表示する関数
 function showMacOSNotification(title, body) {
@@ -158,6 +165,86 @@ app.whenReady().then(() => {
   createWindow();
   createTray();
 
+  // 自動更新の設定
+  if (!isDev) {
+    // 開発モードでない場合のみ自動更新を有効化
+    autoUpdater.checkForUpdatesAndNotify();
+    
+    // 更新が利用可能になったときのイベント
+    autoUpdater.on('update-available', (info) => {
+      // レンダラープロセスに通知
+      if (mainWindow) {
+        mainWindow.webContents.send('update-available', info);
+      }
+      
+      showMacOSNotification(
+        'アップデートが利用可能です',
+        `新しいバージョン ${info.version} がダウンロードされます`
+      );
+      
+      // ログに記録
+      autoUpdater.logger.info('更新が利用可能です:', info);
+    });
+    
+    // 更新のダウンロードの進行状況
+    autoUpdater.on('download-progress', (progressObj) => {
+      // レンダラープロセスに進行状況を通知
+      if (mainWindow) {
+        mainWindow.webContents.send('download-progress', progressObj);
+      }
+      
+      // ログに記録
+      autoUpdater.logger.info('ダウンロード進行状況:', progressObj);
+    });
+    
+    // 更新のダウンロードが完了したときのイベント
+    autoUpdater.on('update-downloaded', (info) => {
+      // レンダラープロセスに通知
+      if (mainWindow) {
+        mainWindow.webContents.send('update-downloaded', info);
+      }
+      
+      // ダイアログを表示して更新を確認
+      dialog.showMessageBox({
+        type: 'info',
+        title: 'アップデートの準備ができました',
+        message: `新しいバージョン ${info.version} がインストールされます。`,
+        detail: 'アプリを再起動して更新を適用しますか？',
+        buttons: ['今すぐ再起動', '後で'],
+        defaultId: 0
+      }).then(({ response }) => {
+        if (response === 0) {
+          // 「今すぐ再起動」が選択された場合
+          autoUpdater.quitAndInstall();
+        }
+      });
+      
+      showMacOSNotification(
+        'アップデートの準備ができました',
+        `新しいバージョン ${info.version} がインストールされます。アプリを再起動してください。`
+      );
+      
+      // ログに記録
+      autoUpdater.logger.info('更新のダウンロードが完了しました:', info);
+    });
+    
+    // エラーが発生した場合のイベント
+    autoUpdater.on('error', (err) => {
+      // レンダラープロセスに通知
+      if (mainWindow) {
+        mainWindow.webContents.send('update-error', err);
+      }
+      
+      console.error('自動更新エラー:', err);
+      autoUpdater.logger.error('自動更新エラー:', err);
+    });
+    
+    // 定期的に更新をチェック（1時間ごと）
+    setInterval(() => {
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 60 * 60 * 1000);
+  }
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -245,4 +332,36 @@ ipcMain.handle('get-settings', async () => {
 ipcMain.handle('save-settings', async (event, settings) => {
   store.set('settings', settings);
   return true;
+});
+
+// 手動で更新をチェックするためのIPC通信
+ipcMain.handle('check-for-updates', async () => {
+  if (isDev) {
+    return { success: false, message: '開発モードでは更新チェックは無効です' };
+  }
+  
+  try {
+    autoUpdater.logger.info('手動更新チェックを開始します');
+    await autoUpdater.checkForUpdates();
+    return { success: true };
+  } catch (error) {
+    autoUpdater.logger.error('手動更新チェック中にエラーが発生しました:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+// 更新をインストールするためのIPC通信
+ipcMain.handle('install-update', async () => {
+  if (isDev) {
+    return { success: false, message: '開発モードでは更新インストールは無効です' };
+  }
+  
+  try {
+    autoUpdater.logger.info('更新のインストールを開始します');
+    autoUpdater.quitAndInstall();
+    return { success: true };
+  } catch (error) {
+    autoUpdater.logger.error('更新のインストール中にエラーが発生しました:', error);
+    return { success: false, message: error.message };
+  }
 }); 

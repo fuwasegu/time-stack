@@ -6,6 +6,7 @@
   <title>Time Stack</title>
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/emoji-picker.css">
+  <link rel="stylesheet" href="styles/update-notification.css">
 </head>
 <body>
   <div class="app-container">
@@ -35,6 +36,24 @@
         <!-- タイマーカードはJSで動的に生成 -->
       </div>
     </main>
+
+    <!-- 更新通知 -->
+    <div id="update-notification" class="update-notification hidden">
+      <div class="update-icon">🔄</div>
+      <div class="update-content">
+        <div class="update-title">アップデートが利用可能です</div>
+        <div id="update-message" class="update-message">新しいバージョンがダウンロードされています...</div>
+        <div id="update-progress-container" class="update-progress-container hidden">
+          <div id="update-progress-bar" class="update-progress-bar"></div>
+          <div id="update-progress-text" class="update-progress-text">0%</div>
+        </div>
+      </div>
+      <div class="update-actions">
+        <button id="install-update-btn" class="btn btn-primary hidden">今すぐ更新</button>
+        <button id="check-update-btn" class="btn btn-secondary">更新を確認</button>
+        <button id="close-update-notification-btn" class="btn btn-text">閉じる</button>
+      </div>
+    </div>
 
     <!-- 新規タイマー作成モーダル -->
     <div id="timer-modal" class="modal">
@@ -167,6 +186,7 @@
   <script src="components/timer-card.js"></script>
   <script src="utils/time-utils.js"></script>
   <script src="utils/drag-drop.js"></script>
+  <script src="components/update-notification.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html> 

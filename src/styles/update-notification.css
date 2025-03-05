@@ -1,0 +1,118 @@
+/* 更新通知のスタイル */
+.update-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  background-color: #2c2c2c;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: 1px solid #444;
+}
+
+.update-notification.hidden {
+  display: none;
+}
+
+.update-notification .update-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #4caf50;
+}
+
+.update-notification .update-content {
+  margin-bottom: 16px;
+}
+
+.update-notification .update-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.update-notification .update-message {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.update-notification .update-progress-container {
+  height: 8px;
+  background-color: #444;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+  position: relative;
+}
+
+.update-notification .update-progress-container.hidden {
+  display: none;
+}
+
+.update-notification .update-progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.update-notification .update-progress-text {
+  font-size: 12px;
+  color: #ccc;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.update-notification .update-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.update-notification .btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.update-notification .btn-primary {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+.update-notification .btn-primary:hover {
+  background-color: #3d8b40;
+}
+
+.update-notification .btn-secondary {
+  background-color: #555;
+  color: white;
+  border: none;
+}
+
+.update-notification .btn-secondary:hover {
+  background-color: #444;
+}
+
+.update-notification .btn-text {
+  background-color: transparent;
+  color: #ccc;
+  border: none;
+}
+
+.update-notification .btn-text:hover {
+  color: #fff;
+}
+
+.update-notification .btn.hidden {
+  display: none;
+} 

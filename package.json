@@ -8,17 +8,25 @@
     "dev": "electron . --dev",
     "build:mac": "electron-builder --mac",
     "build:mac-arm64": "electron-builder --mac --arm64",
-    "build:mac-universal": "electron-builder --mac --universal"
+    "build:mac-universal": "electron-builder --mac --universal",
+    "publish": "electron-builder build --mac --publish always",
+    "version:patch": "npm version patch",
+    "version:minor": "npm version minor",
+    "version:major": "npm version major",
+    "release": "git push && git push --tags"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@electron-forge/publisher-github": "^7.3.0",
     "electron": "^35.0.0",
     "electron-builder": "^24.9.1"
   },
   "dependencies": {
     "canvas": "^3.1.0",
+    "electron-log": "^5.3.1",
     "electron-store": "^8.1.0",
+    "electron-updater": "^6.3.9",
     "uuid": "^11.1.0"
   },
   "build": {
@@ -31,6 +39,13 @@
         "zip"
       ],
       "icon": "build/icon.icns"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "fuwasegu",
+        "repo": "time-stack"
+      }
+    ]
   }
 }

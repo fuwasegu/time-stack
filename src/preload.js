@@ -33,5 +33,38 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // UUID生成
   generateUUID: async () => {
     return await ipcRenderer.invoke('generate-uuid');
+  },
+  
+  // 自動更新関連の機能
+  // 更新のチェック
+  checkForUpdates: async () => {
+    return await ipcRenderer.invoke('check-for-updates');
+  },
+  
+  // 更新のインストール
+  installUpdate: async () => {
+    return await ipcRenderer.invoke('install-update');
+  },
+  
+  // 更新イベントのリスナー登録
+  onUpdateAvailable: (callback) => {
+    ipcRenderer.on('update-available', (_, info) => callback(info));
+  },
+  
+  onUpdateDownloadProgress: (callback) => {
+    ipcRenderer.on('download-progress', (_, progressObj) => callback(progressObj));
+  },
+  
+  onUpdateDownloaded: (callback) => {
+    ipcRenderer.on('update-downloaded', (_, info) => callback(info));
+  },
+  
+  onUpdateError: (callback) => {
+    ipcRenderer.on('update-error', (_, error) => callback(error));
+  },
+  
+  // リスナーの削除
+  removeAllListeners: (channel) => {
+    ipcRenderer.removeAllListeners(channel);
   }
 }); 
