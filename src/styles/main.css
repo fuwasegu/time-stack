@@ -424,19 +424,120 @@ body {
   margin-top: 20px;
 }
 
+/* フォームグループのタイトル */
+.form-group-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--text-color);
+}
+
 /* 通知設定 */
 .notification-settings {
   display: flex;
   flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+/* トグルスイッチコンテナ */
+.toggle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle-label {
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+/* トグルスイッチ */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--secondary-color);
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--primary-color);
+}
+
+input:focus + .toggle-slider {
+  box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+/* 通知間隔設定 */
+.notification-interval {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
 }
 
-.notification-settings input[type="checkbox"] {
-  margin-right: 8px;
+.interval-label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
 }
 
-.notification-settings input[type="number"] {
+.interval-input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.interval-input-container input {
   width: 80px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.interval-unit {
+  color: var(--text-color);
+  font-size: 0.95rem;
 }
 
 /* 時間編集モーダル用のスタイル */
