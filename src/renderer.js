@@ -16,6 +16,9 @@ const timerTimeContainer = document.getElementById('timer-time-container');
 const timerHoursInput = document.getElementById('timer-hours');
 const timerMinutesInput = document.getElementById('timer-minutes');
 const timerSecondsInput = document.getElementById('timer-seconds');
+const adjustmentMinutesInput = document.getElementById('adjustment-minutes');
+const applyAdjustmentBtn = document.getElementById('apply-adjustment-btn');
+const shortcutBtns = document.querySelectorAll('.shortcut-btn');
 const saveTimerBtn = document.getElementById('save-timer-btn');
 const cancelTimerBtn = document.getElementById('cancel-timer-btn');
 const confirmDialog = document.getElementById('confirm-dialog');
@@ -89,6 +92,9 @@ async function init() {
     activeTimer = activeTimerObj;
     startTimerInterval();
   }
+  
+  // イベントリスナーを設定
+  setupEventListeners();
 }
 
 // タイマーを表示する関数
@@ -318,6 +324,9 @@ function showTimeEditModal(timer) {
   // モーダルのタイトルを設定
   modalTitle.textContent = '時間を編集';
   
+  // タイトル入力フィールドのrequired属性を一時的に削除
+  timerTitleInput.removeAttribute('required');
+  
   // 時間編集モードでは不要な項目を非表示にする
   document.querySelectorAll('.form-group').forEach(group => {
     // 時間入力以外の項目を非表示
@@ -349,6 +358,9 @@ function showTimeEditModal(timer) {
 function closeModal() {
   timerModal.classList.remove('show');
   editingTimerId = null;
+  
+  // タイトル入力フィールドのrequired属性を復元
+  timerTitleInput.setAttribute('required', '');
   
   // すべてのフォーム項目を再表示
   document.querySelectorAll('.form-group').forEach(group => {
@@ -421,6 +433,40 @@ function showContextMenu(event, timerId) {
 
 // タイマーを作成/更新する関数
 function createOrUpdateTimer() {
+  // 時間編集モードの場合
+  if (timerTimeContainer.style.display !== 'none') {
+    // 時間編集モードの処理
+    const hours = parseInt(timerHoursInput.value) || 0;
+    const mins = parseInt(timerMinutesInput.value) || 0;
+    const secs = parseInt(timerSecondsInput.value) || 0;
+    const seconds = (hours * 3600) + (mins * 60) + secs;
+    
+    if (editingTimerId) {
+      const timerIndex = timers.findIndex(t => t.id === editingTimerId);
+      if (timerIndex !== -1) {
+        timers[timerIndex].seconds = seconds;
+        // 後方互換性のために分も更新
+        timers[timerIndex].minutes = Math.floor(seconds / 60);
+        
+        // タイマーカードを更新
+        const timerCard = document.querySelector(`.timer-card[data-id="${editingTimerId}"]`);
+        if (timerCard) {
+          updateTimerCard(timerCard, timers[timerIndex]);
+        }
+        
+        // タイマーを保存して表示を更新
+        saveTimers();
+        renderTimers();
+        updateTotalTime();
+        
+        // モーダルを閉じる
+        closeModal();
+      }
+    }
+    return;
+  }
+  
+  // 通常のタイマー作成/編集モード
   const title = timerTitleInput.value.trim();
   if (!title) return;
   
@@ -429,26 +475,10 @@ function createOrUpdateTimer() {
   const notificationEnabled = enableNotificationCheckbox.checked;
   const notificationInterval = parseInt(notificationIntervalInput.value) || 30;
   
-  // 時間編集モードの場合
-  let seconds = 0;
-  if (timerTimeContainer.style.display !== 'none') {
-    const hours = parseInt(timerHoursInput.value) || 0;
-    const mins = parseInt(timerMinutesInput.value) || 0;
-    const secs = parseInt(timerSecondsInput.value) || 0;
-    seconds = (hours * 3600) + (mins * 60) + secs;
-  }
-  
   if (editingTimerId) {
     // 既存のタイマーを更新
     const timerIndex = timers.findIndex(t => t.id === editingTimerId);
     if (timerIndex !== -1) {
-      // 時間編集モードの場合は時間を更新
-      if (timerTimeContainer.style.display !== 'none') {
-        timers[timerIndex].seconds = seconds;
-        // 後方互換性のために分も更新
-        timers[timerIndex].minutes = Math.floor(seconds / 60);
-      }
-      
       timers[timerIndex].title = title;
       timers[timerIndex].icon = icon;
       timers[timerIndex].notes = notes;
@@ -476,8 +506,8 @@ function createOrUpdateTimer() {
       title: title,
       icon: icon,
       notes: notes,
-      seconds: seconds,
-      minutes: Math.floor(seconds / 60), // 後方互換性のため
+      seconds: 0,
+      minutes: 0,
       active: false,
       notificationEnabled: notificationEnabled,
       notificationInterval: notificationInterval,
@@ -547,67 +577,108 @@ function clearAllTimers() {
   updateTotalTime();
 }
 
-// イベントリスナー
-// 新規タイマーボタン
-addTimerBtn.addEventListener('click', () => {
-  showModal();
-});
+// イベントリスナーの設定
+function setupEventListeners() {
+  // 新規タイマーボタン
+  addTimerBtn.addEventListener('click', () => {
+    showModal();
+  });
 
-// 全てクリアボタン
-clearAllBtn.addEventListener('click', () => {
-  if (timers.length === 0) return;
+  // 全てクリアボタン
+  clearAllBtn.addEventListener('click', () => {
+    if (timers.length === 0) return;
+    
+    showConfirmDialog('全てのタイマーをクリアしますか？', clearAllTimers);
+  });
+
+  // モーダルを閉じるボタン
+  closeModalBtn.addEventListener('click', closeModal);
+  cancelTimerBtn.addEventListener('click', closeModal);
+
+  // 通知設定のチェックボックス
+  enableNotificationCheckbox.addEventListener('change', () => {
+    notificationIntervalContainer.classList.toggle('hidden', !enableNotificationCheckbox.checked);
+  });
+
+  // タイマーフォームの送信
+  timerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    createOrUpdateTimer();
+  });
+
+  // 確認ダイアログを閉じるボタン
+  closeConfirmBtn.addEventListener('click', closeConfirmDialog);
+  confirmNoBtn.addEventListener('click', closeConfirmDialog);
+
+  // コンテキストメニューのアイテム
+  editTimerMenuItem.addEventListener('click', () => {
+    const timerId = contextMenu.dataset.timerId;
+    if (timerId) {
+      const timer = timers.find(t => t.id === timerId);
+      if (timer) {
+        showModal(true, timer);
+      }
+    }
+  });
+
+  editTimeMenuItem.addEventListener('click', () => {
+    const timerId = contextMenu.dataset.timerId;
+    if (timerId) {
+      const timer = timers.find(t => t.id === timerId);
+      if (timer) {
+        showTimeEditModal(timer);
+      }
+    }
+  });
+
+  deleteTimerMenuItem.addEventListener('click', () => {
+    const timerId = contextMenu.dataset.timerId;
+    if (timerId) {
+      showConfirmDialog('このタイマーを削除しますか？', () => {
+        deleteTimer(timerId);
+      });
+    }
+  });
+
+  // 時間調整ボタンのイベントリスナー
+  applyAdjustmentBtn.addEventListener('click', () => {
+    const adjustmentMinutes = parseInt(adjustmentMinutesInput.value) || 0;
+    applyTimeAdjustment(adjustmentMinutes);
+  });
   
-  showConfirmDialog('全てのタイマーをクリアしますか？', clearAllTimers);
-});
-
-// モーダルを閉じるボタン
-closeModalBtn.addEventListener('click', closeModal);
-cancelTimerBtn.addEventListener('click', closeModal);
-
-// 通知設定のチェックボックス
-enableNotificationCheckbox.addEventListener('change', () => {
-  notificationIntervalContainer.classList.toggle('hidden', !enableNotificationCheckbox.checked);
-});
-
-// タイマーフォームの送信
-timerForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  createOrUpdateTimer();
-});
-
-// 確認ダイアログを閉じるボタン
-closeConfirmBtn.addEventListener('click', closeConfirmDialog);
-confirmNoBtn.addEventListener('click', closeConfirmDialog);
-
-// コンテキストメニューのアイテム
-editTimerMenuItem.addEventListener('click', () => {
-  const timerId = contextMenu.dataset.timerId;
-  if (timerId) {
-    const timer = timers.find(t => t.id === timerId);
-    if (timer) {
-      showModal(true, timer);
-    }
-  }
-});
-
-editTimeMenuItem.addEventListener('click', () => {
-  const timerId = contextMenu.dataset.timerId;
-  if (timerId) {
-    const timer = timers.find(t => t.id === timerId);
-    if (timer) {
-      showTimeEditModal(timer);
-    }
-  }
-});
-
-deleteTimerMenuItem.addEventListener('click', () => {
-  const timerId = contextMenu.dataset.timerId;
-  if (timerId) {
-    showConfirmDialog('このタイマーを削除しますか？', () => {
-      deleteTimer(timerId);
+  // ショートカットボタンのイベントリスナー
+  shortcutBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const minutes = parseInt(btn.dataset.minutes);
+      applyTimeAdjustment(minutes);
     });
-  }
-});
+  });
+}
+
+// 時間調整を適用する関数
+function applyTimeAdjustment(minutes) {
+  // 現在の時間を秒に変換
+  const hours = parseInt(timerHoursInput.value) || 0;
+  const mins = parseInt(timerMinutesInput.value) || 0;
+  const secs = parseInt(timerSecondsInput.value) || 0;
+  let totalSeconds = (hours * 3600) + (mins * 60) + secs;
+  
+  // 調整時間を秒に変換して加算（分数を秒に変換）
+  totalSeconds += minutes * 60;
+  
+  // 負の値にならないように調整
+  totalSeconds = Math.max(0, totalSeconds);
+  
+  // 新しい時間を時:分:秒に変換
+  const newHours = Math.floor(totalSeconds / 3600);
+  const newMinutes = Math.floor((totalSeconds % 3600) / 60);
+  const newSeconds = totalSeconds % 60;
+  
+  // 入力フィールドを更新
+  timerHoursInput.value = newHours;
+  timerMinutesInput.value = newMinutes;
+  timerSecondsInput.value = newSeconds;
+}
 
 // 初期化
 init(); 
