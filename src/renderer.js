@@ -126,19 +126,6 @@ async function init() {
     
     // イベントリスナーを設定
     setupEventListeners();
-    
-    // 通知テスト
-    console.log('通知テストを実行します');
-    setTimeout(() => {
-      window.electronAPI.showNotification({
-        title: 'テスト通知',
-        body: 'これは通知機能のテストです'
-      }).then(result => {
-        console.log('通知テスト結果:', result);
-      }).catch(error => {
-        console.error('通知テストエラー:', error);
-      });
-    }, 3000); // 3秒後にテスト通知を表示
   } catch (error) {
     console.error('初期化中にエラーが発生しました:', error);
   }
@@ -300,13 +287,32 @@ function startNotificationInterval(timer) {
   
   // 通知インターバルを設定
   const intervalMinutes = timer.notificationInterval || 30;
+  console.log(`通知インターバルを設定: ${intervalMinutes}分`);
+  
+  // 前回通知した分数を記録
+  let lastNotifiedMinutes = 0;
+  
+  // より精度の高いタイマーを使用
   notificationIntervals[timer.id] = setInterval(() => {
-    // 通知を表示
-    window.electronAPI.showNotification({
-      title: `${timer.title} - ${formatTime(timer.minutes)}`,
-      body: `${intervalMinutes}分経過しました`
-    });
-  }, intervalMinutes * 60000); // 分をミリ秒に変換
+    if (!timer.active) return;
+    
+    // 現在のタイマー時間（分）を取得
+    const currentMinutes = Math.floor(timer.seconds / 60);
+    
+    // 通知すべき分数かチェック（例: 1分、2分、3分...）
+    if (currentMinutes > 0 && currentMinutes % intervalMinutes === 0 && currentMinutes !== lastNotifiedMinutes) {
+      console.log(`通知を発生: タイマー=${timer.title}, 経過時間=${currentMinutes}分, 通知間隔=${intervalMinutes}分`);
+      
+      // 通知を表示
+      window.electronAPI.showNotification({
+        title: `${timer.title} - ${formatTime(timer.minutes)}`,
+        body: `${intervalMinutes}分経過しました`
+      });
+      
+      // 最後に通知した分数を更新
+      lastNotifiedMinutes = currentMinutes;
+    }
+  }, 1000); // 1秒ごとにチェック
 }
 
 // 通知インターバルをクリアする関数
