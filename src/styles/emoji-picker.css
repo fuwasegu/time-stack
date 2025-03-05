@@ -21,23 +21,22 @@
   position: fixed;
   z-index: 10000;
   width: 300px;
-  max-height: 350px;
   background-color: var(--card-background);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   box-shadow: 0 4px 10px var(--shadow-color);
-  overflow-y: auto;
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* コンテナ自体のオーバーフローを隠す */
 }
 
 /* 検索コンテナ */
 .emoji-search-container {
-  margin-bottom: 10px;
-  position: sticky;
-  top: 0;
+  padding: 10px;
   background-color: var(--card-background);
-  padding: 5px 0;
+  border-bottom: 1px solid var(--border-color);
   z-index: 10;
+  flex-shrink: 0; /* 検索コンテナのサイズを固定 */
 }
 
 .emoji-search-input {
@@ -55,11 +54,14 @@
   border-color: var(--primary-color);
 }
 
-/* カテゴリコンテナ */
+/* カテゴリコンテナ - スクロール可能な領域 */
 .emoji-categories {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  padding: 10px;
+  overflow-y: auto; /* カテゴリコンテナのみスクロール可能に */
+  max-height: 300px; /* 最大高さを設定 */
 }
 
 .emoji-list {
