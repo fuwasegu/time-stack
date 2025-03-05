@@ -30,6 +30,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   overflow: hidden;
+  min-width: 600px; /* アプリケーションの最小幅を設定 */
 }
 
 /* アプリケーションコンテナ */
@@ -42,6 +43,7 @@ body {
   padding: 28px 0 0 0; /* macOSのトラフィックライト用に上部にパディングを追加 */
   overflow: hidden;
   position: relative;
+  min-width: 600px; /* アプリケーションの最小幅を設定 */
 }
 
 /* トラフィックライト領域 - ドラッグ可能に設定 */
@@ -71,6 +73,7 @@ body {
   right: 0;
   z-index: 1000;
   -webkit-app-region: drag; /* ドラッグ可能領域として設定 */
+  min-width: 600px; /* ヘッダーの最小幅を設定 */
 }
 
 /* ヘッダー内のボタンなどはドラッグ不可に設定 */
@@ -750,6 +753,34 @@ input:checked + .toggle-slider:before {
     height: 110px; /* 高さを固定 */
     width: 100%; /* 幅を100%に */
     max-width: 350px; /* 最大幅を設定 */
+  }
+  
+  /* ヘッダーのレスポンシブ対応 */
+  .app-header {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 60px;
+    padding: 10px;
+  }
+  
+  .header-left, .header-center, .header-right {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 5px;
+  }
+  
+  .header-right {
+    justify-content: center;
+  }
+  
+  .app-title {
+    margin-right: 0;
+    text-align: center;
+  }
+  
+  /* コンテンツのパディングを調整 */
+  .app-content {
+    padding-top: 150px; /* ヘッダーの高さが増えたので調整 */
   }
 }
 
