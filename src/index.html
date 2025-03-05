@@ -59,11 +59,6 @@
                 <button type="button" id="emoji-picker-btn" class="emoji-btn">
                   <span id="selected-emoji">⏱️</span>
                 </button>
-                <div id="emoji-picker" class="emoji-picker hidden">
-                  <div class="emoji-list">
-                    <!-- 絵文字はJSで動的に生成 -->
-                  </div>
-                </div>
               </div>
             </div>
             <div class="form-group">
@@ -160,6 +155,11 @@
         <li id="delete-timer" class="danger">削除</li>
       </ul>
     </div>
+  </div>
+
+  <!-- 絵文字ピッカー（body直下に配置） -->
+  <div id="emoji-picker" class="emoji-picker hidden">
+    <!-- 絵文字はJSで動的に生成 -->
   </div>
 
   <!-- スクリプト -->
