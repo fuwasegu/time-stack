@@ -344,6 +344,14 @@ function closeModal() {
   editingTimerId = null;
 }
 
+// モーダルの背景をクリックしたときにモーダルを閉じる
+timerModal.addEventListener('click', (e) => {
+  // モーダルの背景がクリックされた場合のみ閉じる
+  if (e.target === timerModal) {
+    closeModal();
+  }
+});
+
 // 確認ダイアログを表示する関数
 function showConfirmDialog(message, onConfirm) {
   confirmMessage.textContent = message;
@@ -363,6 +371,14 @@ function showConfirmDialog(message, onConfirm) {
 function closeConfirmDialog() {
   confirmDialog.classList.remove('show');
 }
+
+// 確認ダイアログの背景をクリックしたときにダイアログを閉じる
+confirmDialog.addEventListener('click', (e) => {
+  // ダイアログの背景がクリックされた場合のみ閉じる
+  if (e.target === confirmDialog) {
+    closeConfirmDialog();
+  }
+});
 
 // コンテキストメニューを表示する関数
 function showContextMenu(event, timerId) {
