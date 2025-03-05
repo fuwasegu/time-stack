@@ -13,7 +13,7 @@
 
 ## スクリーンショット
 
-![Time Stack](screenshot.png)
+<img width="897" alt="Image" src="https://github.com/user-attachments/assets/3194c9cc-9b2f-4ab8-8faf-88f10efe26f3" />
 
 ## インストール方法
 
