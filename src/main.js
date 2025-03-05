@@ -2,6 +2,28 @@ const { app, BrowserWindow, ipcMain, Menu, Tray, Notification } = require('elect
 const path = require('path');
 const Store = require('electron-store');
 const fs = require('fs');
+const { exec } = require('child_process');
+
+// macOSのネイティブ通知を表示する関数
+function showMacOSNotification(title, body) {
+  return new Promise((resolve, reject) => {
+    // 特殊文字をエスケープ
+    const escapedTitle = title.replace(/"/g, '\\"');
+    const escapedBody = body.replace(/"/g, '\\"');
+    
+    const script = `display notification "${escapedBody}" with title "${escapedTitle}"`;
+    
+    exec(`osascript -e '${script}'`, (error) => {
+      if (error) {
+        console.error('macOS通知エラー:', error);
+        reject(error);
+      } else {
+        console.log('macOS通知を表示しました');
+        resolve();
+      }
+    });
+  });
+}
 
 // データストアの初期化
 const store = new Store({
@@ -162,18 +184,56 @@ ipcMain.handle('save-timers', async (event, timers) => {
   return true;
 });
 
+// UUID生成
+ipcMain.handle('generate-uuid', async () => {
+  // uuidパッケージがインストールされていれば使用
+  try {
+    const { v4: uuidv4 } = require('uuid');
+    return uuidv4();
+  } catch (error) {
+    console.error('uuidパッケージの読み込みに失敗しました:', error);
+    // フォールバック: 簡易的なUUID生成
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+});
+
 // 通知の表示
 ipcMain.handle('show-notification', async (event, { title, body }) => {
-  if (!store.get('settings.notificationsEnabled')) return false;
+  console.log('通知リクエストを受信:', { title, body });
   
-  const notification = new Notification({
-    title,
-    body,
-    silent: false
-  });
+  if (!store.get('settings.notificationsEnabled')) {
+    console.log('通知が無効になっています');
+    return false;
+  }
   
-  notification.show();
-  return true;
+  try {
+    // macOSの場合はネイティブ通知を使用
+    if (process.platform === 'darwin') {
+      console.log('macOSネイティブ通知を使用します');
+      await showMacOSNotification(title, body);
+      return true;
+    }
+    
+    // その他のプラットフォームではElectron通知を使用
+    console.log('Electron通知を作成します');
+    const notification = new Notification({
+      title,
+      body,
+      silent: false
+    });
+    
+    console.log('通知を表示します');
+    notification.show();
+    console.log('通知を表示しました');
+    return true;
+  } catch (error) {
+    console.error('通知の表示中にエラーが発生しました:', error);
+    return false;
+  }
 });
 
 // 設定の取得

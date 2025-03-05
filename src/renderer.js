@@ -1,3 +1,27 @@
+// uuidパッケージをインポート
+// const { v4: uuidv4 } = require('uuid'); // この行を削除
+
+// UUID生成関数
+async function generateUUID() {
+  try {
+    // electronAPIが利用可能ならそれを使用
+    if (window.electronAPI && window.electronAPI.generateUUID) {
+      return await window.electronAPI.generateUUID();
+    }
+    
+    // フォールバック: 簡易的なUUID生成
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  } catch (error) {
+    console.error('UUID生成中にエラーが発生しました:', error);
+    // 最終フォールバック: タイムスタンプベースのID
+    return 'id-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+  }
+}
+
 // DOM要素
 const timersContainer = document.getElementById('timers-container');
 const totalTimeElement = document.getElementById('total-time');
@@ -76,25 +100,48 @@ window.timerCallbacks = {
 
 // 初期化
 async function init() {
-  // タイマーデータを読み込む
-  timers = await window.electronAPI.getTimers() || [];
-  
-  // タイマーを表示
-  renderTimers();
-  
-  // 合計時間を更新
-  updateTotalTime();
-  
-  // アクティブなタイマーがあれば再開
-  const activeTimerObj = timers.find(timer => timer.active);
-  if (activeTimerObj) {
-    activeTimerId = activeTimerObj.id;
-    activeTimer = activeTimerObj;
-    startTimerInterval();
+  try {
+    // electronAPIが利用可能かチェック
+    if (!window.electronAPI) {
+      console.error('electronAPIが利用できません。preload.jsが正しく読み込まれていない可能性があります。');
+      return;
+    }
+    
+    // タイマーデータを読み込む
+    timers = await window.electronAPI.getTimers() || [];
+    
+    // タイマーを表示
+    renderTimers();
+    
+    // 合計時間を更新
+    updateTotalTime();
+    
+    // アクティブなタイマーがあれば再開
+    const activeTimerObj = timers.find(timer => timer.active);
+    if (activeTimerObj) {
+      activeTimerId = activeTimerObj.id;
+      activeTimer = activeTimerObj;
+      startTimerInterval();
+    }
+    
+    // イベントリスナーを設定
+    setupEventListeners();
+    
+    // 通知テスト
+    console.log('通知テストを実行します');
+    setTimeout(() => {
+      window.electronAPI.showNotification({
+        title: 'テスト通知',
+        body: 'これは通知機能のテストです'
+      }).then(result => {
+        console.log('通知テスト結果:', result);
+      }).catch(error => {
+        console.error('通知テストエラー:', error);
+      });
+    }, 3000); // 3秒後にテスト通知を表示
+  } catch (error) {
+    console.error('初期化中にエラーが発生しました:', error);
   }
-  
-  // イベントリスナーを設定
-  setupEventListeners();
 }
 
 // タイマーを表示する関数
@@ -431,8 +478,8 @@ function showContextMenu(event, timerId) {
   }, 0);
 }
 
-// タイマーを作成/更新する関数
-function createOrUpdateTimer() {
+// タイマーの作成または更新
+async function createOrUpdateTimer() {
   // 時間編集モードの場合
   if (timerTimeContainer.style.display !== 'none') {
     // 時間編集モードの処理
@@ -502,7 +549,7 @@ function createOrUpdateTimer() {
   } else {
     // 新しいタイマーを作成
     const newTimer = {
-      id: generateUUID(),
+      id: await generateUUID(),
       title: title,
       icon: icon,
       notes: notes,
@@ -517,13 +564,7 @@ function createOrUpdateTimer() {
     timers.push(newTimer);
     
     // タイマーカードを作成
-    const timerCard = createTimerCard(
-      newTimer,
-      startTimer,
-      stopTimer,
-      resetTimer,
-      showContextMenu
-    );
+    const timerCard = createTimerCard(newTimer);
     
     timersContainer.appendChild(timerCard);
   }
@@ -601,9 +642,9 @@ function setupEventListeners() {
   });
 
   // タイマーフォームの送信
-  timerForm.addEventListener('submit', (e) => {
+  timerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    createOrUpdateTimer();
+    await createOrUpdateTimer();
   });
 
   // 確認ダイアログを閉じるボタン

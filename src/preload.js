@@ -1,4 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
+// uuidパッケージのインポートを削除
+// const path = require('path');
+// const { v4: uuidv4 } = require(path.join(__dirname, '..', 'node_modules', 'uuid'));
 
 // レンダラープロセスに公開するAPIを定義
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -25,5 +28,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 設定の保存
   saveSettings: async (settings) => {
     return await ipcRenderer.invoke('save-settings', settings);
+  },
+  
+  // UUID生成
+  generateUUID: async () => {
+    return await ipcRenderer.invoke('generate-uuid');
   }
 }); 
