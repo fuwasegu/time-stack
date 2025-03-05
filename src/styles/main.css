@@ -442,8 +442,10 @@ body {
 /* 時間入力 */
 .time-inputs {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 5px;
+  margin-bottom: 20px;
 }
 
 .time-inputs input {
@@ -544,4 +546,17 @@ body {
 
 #confirm-dialog .modal-content {
   max-width: 400px;
+}
+
+/* 時間編集モーダル用のスタイル */
+#timer-time-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+#timer-time-container label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
 } 

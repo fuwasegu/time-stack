@@ -280,6 +280,13 @@ function showModal(isEditing = false, timer = null) {
   // モーダルのタイトルを設定
   modalTitle.textContent = isEditing ? 'タイマーを編集' : '新規タイマー';
   
+  // すべてのフォーム項目を表示（時間入力以外）
+  document.querySelectorAll('.form-group').forEach(group => {
+    if (group.id !== 'timer-time-container') {
+      group.style.display = 'block';
+    }
+  });
+  
   // 編集モードの場合はフォームに値を設定
   if (isEditing && timer) {
     timerTitleInput.value = timer.title;
@@ -311,13 +318,13 @@ function showTimeEditModal(timer) {
   // モーダルのタイトルを設定
   modalTitle.textContent = '時間を編集';
   
-  // フォームに値を設定
-  timerTitleInput.value = timer.title;
-  timerNotesInput.value = timer.notes || '';
-  document.getElementById('selected-emoji').textContent = timer.icon || '⏱️';
-  enableNotificationCheckbox.checked = timer.notificationEnabled || false;
-  notificationIntervalInput.value = timer.notificationInterval || 30;
-  notificationIntervalContainer.classList.toggle('hidden', !timer.notificationEnabled);
+  // 時間編集モードでは不要な項目を非表示にする
+  document.querySelectorAll('.form-group').forEach(group => {
+    // 時間入力以外の項目を非表示
+    if (group.id !== 'timer-time-container') {
+      group.style.display = 'none';
+    }
+  });
   
   // 時間入力を表示
   timerTimeContainer.style.display = 'block';
@@ -342,6 +349,16 @@ function showTimeEditModal(timer) {
 function closeModal() {
   timerModal.classList.remove('show');
   editingTimerId = null;
+  
+  // すべてのフォーム項目を再表示
+  document.querySelectorAll('.form-group').forEach(group => {
+    // 時間入力は通常は非表示
+    if (group.id === 'timer-time-container') {
+      group.style.display = 'none';
+    } else {
+      group.style.display = 'block';
+    }
+  });
 }
 
 // モーダルの背景をクリックしたときにモーダルを閉じる
